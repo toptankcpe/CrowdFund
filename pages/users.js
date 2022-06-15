@@ -158,17 +158,14 @@ import {
                 />
               }>
               <VStack spacing={{ base: 4, sm: 6 }}>
-                <Text
+                {/* <Text
                   color={useColorModeValue('gray.500', 'gray.400')}
                   fontSize={'2xl'}
                   fontWeight={'300'}>
-                  {second.Tagline}
-                </Text>
+                  Test
+                </Text> */}
                 <Text fontSize={'lg'}>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad
-                  aliquid amet at delectus doloribus dolorum expedita hic, ipsum
-                  maxime modi nam officiis porro, quae, quisquam quos
-                  reprehenderit velit? Natus, totam.
+                {second.Tagline}
                 </Text>
                   
               </VStack>
@@ -195,17 +192,17 @@ import {
                   </List>
                 </SimpleGrid>
               </Box>
-              <Box>
-                <Text
+              {/* <Box> */}
+                {/* <Text
                   fontSize={{ base: '16px', lg: '18px' }}
                   color={useColorModeValue('yellow.500', 'yellow.300')}
                   fontWeight={'500'}
                   textTransform={'uppercase'}
                   mb={'4'}>
                   Product Details
-                </Text>
+                </Text> */}
   
-                <List spacing={2}>
+                {/* <List spacing={2}>
                   <ListItem>
                     <Text as={'span'} fontWeight={'bold'}>
                       Between lugs:
@@ -249,8 +246,8 @@ import {
                     </Text>{' '}
                     5 bar (50 metres / 167 feet){' '}
                   </ListItem>
-                </List>
-              </Box>
+                </List> */}
+              {/* </Box> */}
             </Stack>
   
             <Button
@@ -276,6 +273,8 @@ import {
           </Stack>
         </SimpleGrid>
       </Container>
+      
+
       <Footer>
       </Footer>
       </>
