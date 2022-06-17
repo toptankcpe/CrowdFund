@@ -8,7 +8,7 @@ import { Flex, Text, IconButton, Box, useColorModeValue,HStack,Heading,Stack,But
     FormErrorMessage,
     FormHelperText,
     Input} from '@chakra-ui/react'
-import { useMoralis } from "react-moralis"
+import { useMoralis , useWeb3ExecuteFunction } from "react-moralis"
 import { FiMenu } from 'react-icons/fi'
 import Moralis from 'moralis'
 import { useNewMoralisObject } from "react-moralis";
@@ -21,23 +21,142 @@ export default function Create() {
     const {isAuthenticated, authenticate, user, logout, isLoggingOut,isInitialized} = useMoralis()
     // const Campaign = Moralis.Object.extend("Campaign");
     // const campaign = new Campaign();
+    const contractProcessor = useWeb3ExecuteFunction();
     const { save } = useNewMoralisObject("Campaign");
+    var [count, setCount] = useState(0);
+    
+    let [state, setState] = React.useState({
+      idCount: 0,
+      Email: "",
+      CampaignName: "",
+      Tagline: "",
+      Story: "test",
+      Group: "Food",
+      Country: "thai",
+      // Photo: "",
+      Reward: "",
+      goal: null,
+      startAt: null,
+      endAt: null
+    });
 
     // router
     const router = useRouter()
 
-    const [state, setState] = React.useState({
-        Email: "",
-        CampaignName: "",
-        Tagline: "",
-        Story: "test",
-        Group: "Food",
-        Goal: "500",
-        Country: "thai",
-        Deadline: "2018-09-30",
-        // Photo: "",
-        Reward: ""
+    React.useEffect(() => {
+        
+      (async () => {
+          let results;
+          let response;
+          let tmp;
+          
+          try {
+              let query = new Moralis.Query("Campaign");
+              results = await query.find();
+              query.withCount();
+              const response = await query.find();
+              tmp = response.count + 1
+              
+           } catch (error) {
+                  console.log(error);
+                 
+          }
+
+          setCount(tmp)
+          setState({
+            ...state,
+            idCount: tmp,
+        })
+          
+  
+              
+              // console.log(">>>>>>>>>>" + JSON.parse(JSON.stringify(results["0"])));
+              // var myJSON = JSON.stringify(results);
+              // var pa = JSON.parse(myJSON)
+  
+             
+              // setEmail(pa);
+              
+          
+          })();
+      }, []);
+
+      console.log(count);
+      console.log(state);
+
+    
+
+
+    async function donate(state) {
+
+      let busdInWei = Moralis.Units.Token(state.goal, "18")
+      console.log(typeof busdInWei)
+      let options = {
+        contractAddress: "0xC8F3CEef7D11E1FDF990465C8cA46Dea3F8bb4C4",
+        functionName: "launch",
+        abi: [
+          {"inputs":[{"internalType":"uint256","name":"_goal","type":"uint256"},{"internalType":"uint32","name":"_startAt","type":"uint32"},{"internalType":"uint32","name":"_endAt","type":"uint32"},{"internalType":"uint32","name":"_id","type":"uint32"}],"name":"launch","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ],
+        params: {
+          _goal: busdInWei,
+          _startAt: state.startAt,
+          _endAt: state.endAt,
+          _id: state.idCount
+        
+        },
+        
+      };
+      
+      await Moralis.enableWeb3(); 
+      await contractProcessor.fetch({
+        params: options,
+  
+        // onSuccess: (data) => {
+        //   console.log(data);
+        //   console.log("mint done");
+        // },
+        // onComplete: () => {
+        //   console.log("done");
+        // },
+        // onError: (err) => {
+        //   console.log(err);
+        // },
+        onSuccess: (tx) =>
+        tx.wait().then((finalTx) => {
+          console.log(finalTx)
+          save(state, {
+            onSuccess: (Campaign) => {
+              // Execute any logic that should take place after the object is saved.
+            
+            
+            count = count +1
+            setState({
+                ...state,
+                idCount: count,
+            })
+              alert("New object created with objectId: " + Campaign.id);
+              
+  
+  
+            },
+            onError: (error) => {
+              // Execute any logic that should take place if the save fails.
+              // error is a Moralis.Error with an error code and message.
+              alert("Failed to create new object, with error code: " + error.message);
+            },
+          });;
+        }),
+
+
       });
+
+    };
+      
+
+
+
+   
+
     const [selectedTab, setSelectedTab] = useState()
 
     // handle function
@@ -50,9 +169,22 @@ export default function Create() {
     const value = event.target.value;
     setState({
         ...state,
-        [event.target.name]: value,
-    });
+        [event.target.name]: +event.target.value,
+    })
+    ;
     }
+
+
+    function handleChangeText(event) {
+      const value = event.target.value;
+      setState({
+          ...state,
+          [event.target.name]: event.target.value,
+      })
+      ;
+      }
+
+    const busdInWei = Moralis.Units.Token
 
     // use Effect
     useEffect(() => {
@@ -61,6 +193,7 @@ export default function Create() {
         //     router.push('/')
         // }
     }, [])
+    
 
     const saveObject = async () => {
         // const data = {
@@ -68,18 +201,13 @@ export default function Create() {
         //     CampaignName: value,
         //     Tagline: value,
         // };
-    
-        save(state, {
-          onSuccess: (Campaign) => {
-            // Execute any logic that should take place after the object is saved.
-            alert("New object created with objectId: " + Campaign.id);
-          },
-          onError: (error) => {
-            // Execute any logic that should take place if the save fails.
-            // error is a Moralis.Error with an error code and message.
-            alert("Failed to create new object, with error code: " + error.message);
-          },
-        });
+        
+        
+        // console.log(tmp+1)
+        // console.log(count)
+        console.log(state)
+        donate(state);
+        
     };
     // campaign.set('Email','topstarter@gmail.com')
     // campaign.set('CampaignName','Matcha Greentea Organic')
@@ -266,18 +394,32 @@ export default function Create() {
         { selectedTab === 'Campaign' && <FormControl>
             <FormLabel htmlFor='Email'>Email address</FormLabel>
             <Input size='lg' name='Email' type='text' value={state.Email}
-            onChange={handleChange}/>
+            onChange={handleChangeText}/>
             {/* <FormHelperText>We'll never share your email.</FormHelperText> */}
 
             <FormLabel htmlFor='Campaign Name'>Campaign Name</FormLabel>
             <Input size='lg' name='CampaignName' type='text' value={state.CampaignName}
-            onChange={handleChange}/>
-            {/* <FormHelperText>We'll never share your email.</FormHelperText> */}
-
+            onChange={handleChangeText}/>
+           
             <FormLabel htmlFor='Tagline'>Tagline</FormLabel>
             <Input size='lg' name='Tagline' type='text' value={state.Tagline}
+            onChange={handleChangeText} />
+          
+
+            <FormLabel htmlFor='goal'>goal</FormLabel>
+            <Input size='lg' name='goal' type='int' value={state.goal}
             onChange={handleChange} />
-            {/* <FormHelperText>We'll never share your email.</FormHelperText> */}
+         
+
+            <FormLabel htmlFor='_startAt'>startAt</FormLabel>
+            <Input size='lg' name='startAt' type='int' value={state.startAt}
+            onChange={handleChange} />
+        
+
+            <FormLabel htmlFor='_endAt'>endAt</FormLabel>
+            <Input size='lg' name='endAt' type='int' value={state.endAt}
+            onChange={handleChange} />
+            
            
             <Button
             

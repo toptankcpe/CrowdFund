@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 let secret = require("../secret")
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -26,5 +27,8 @@ module.exports = {
       gas: 2100000,
       gasPrice: 8000000000
     }
+  },
+  etherscan: {
+    apiKey: "ZYU1NYIREHQGD4NVIVDDB94H14BBRG7BHS"
   }
 };

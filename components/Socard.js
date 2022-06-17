@@ -18,11 +18,11 @@ export default function Socard({ data }) {
   
   const router = useRouter()
 
-  const handleClick = (email) => {
+  const handleClick = (id) => {
     router.push({
       pathname: '/users',
       query: {
-        email
+        id
       }
     })
   }
@@ -50,7 +50,7 @@ export default function Socard({ data }) {
         rounded={'md'}
         p={6}
         overflow={'hidden'}
-        onClick={()=>handleClick(data.objectId)}>
+        onClick={()=>handleClick(data.idCount)}>
         <Box
           h={'210px'}
           bg={'gray.100'}

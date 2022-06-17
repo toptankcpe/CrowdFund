@@ -29,11 +29,20 @@ import {
 import React, { Component } from "react";
 import Slider from "react-slick";
 import { useRouter } from 'next/router'
+import { useMoralis , useWeb3ExecuteFunction } from "react-moralis"
 
 
 
 
-export default function Headd({user, logout, isLoggingOut,isAuthenticated}){
+
+export default function Headd(){
+  const {isAuthenticated, authenticate, user, logout, isLoggingOut,isInitialized} = useMoralis()
+  const router = useRouter()
+   // handle function
+   const handleLogout = async () => {
+    await logout({})
+    router.push('/')
+}
     
     if(!isAuthenticated) {
         return(
@@ -103,18 +112,19 @@ export default function Headd({user, logout, isLoggingOut,isAuthenticated}){
         </Box>
         )
     }
-    if(!isAuthenticated) {
+    if(isAuthenticated) {
     return(
         <Box bg={useColorModeValue('gray.100', 'gray.900')} px={8}>
         <Flex h={20} alignItems={'center'} justifyContent={'space-between'}>
-          <IconButton
+          {/* <IconButton
             size={'md'}
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={'Open Menu'}
             display={{ md: 'none' }}
             onClick={isOpen ? onClose : onOpen}
-          />
+          /> */}
           <HStack spacing={8} alignItems={'center'}>
+          <Link href={'/'}>
             <Box>
             <Heading fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}>
               <Text color={'blue.400'} as={'span'}>
@@ -122,6 +132,7 @@ export default function Headd({user, logout, isLoggingOut,isAuthenticated}){
               </Text>
           </Heading>
             </Box>
+            </Link>
             {/* <HStack
               as={'nav'}
               spacing={4}
@@ -137,7 +148,7 @@ export default function Headd({user, logout, isLoggingOut,isAuthenticated}){
               justify={'flex-end'}
               direction={'row'}
               spacing={6}>
-              <Text>{user.getUsername()}</Text>
+              <Text>{user.get("ethAddress")}</Text>
               <Button
                 display={{ base: 'none', md: 'inline-flex' }}
                 fontSize={'sm'}
@@ -148,14 +159,14 @@ export default function Headd({user, logout, isLoggingOut,isAuthenticated}){
                 _hover={{
                   bg: 'pink.300',
                 }}
-                onClick={() => logout({})}>
+                onClick={() => handleLogout()}>
                 Logout
               </Button>
             </Stack>
           </Flex>
         </Flex>
 
-        {isOpen ? (
+        {/* {isOpen ? (
           <Box pb={4} display={{ md: 'none' }}>
             <Stack as={'nav'} spacing={4}>
               {Links.map((link) => (
@@ -163,7 +174,7 @@ export default function Headd({user, logout, isLoggingOut,isAuthenticated}){
               ))}
             </Stack>
           </Box>
-        ) : null}
+        ) : null} */}
       </Box>
     )
     

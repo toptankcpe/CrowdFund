@@ -58,17 +58,25 @@ contract CrowdFund {
     //     token = IERC20(_token);
     // }
 
+    receive() external payable {}
+
+    function getBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+
     function launch(
         uint _goal,
         uint32 _startAt,
-        uint32 _endAt
+        uint32 _endAt,
+        uint32 _id
+
     ) external {
         require(_startAt >= block.timestamp, "start at < now");
         require(_endAt >= _startAt, "end at < start at");
         require(_endAt <= block.timestamp + 90 days, "end at > max duration");
 
-        count += 1;
-        campaigns[count] = Campaign({
+        // count += 1;
+        campaigns[_id] = Campaign({
             creator: msg.sender,
             goal: _goal,
             pledged: 0,
@@ -77,7 +85,7 @@ contract CrowdFund {
             claimed: false
         });
 
-        emit Launch(count, msg.sender, _goal, _startAt, _endAt);
+        emit Launch(_id, msg.sender, _goal, _startAt, _endAt);
     }
 
     function cancel(uint _id) external {
@@ -88,13 +96,20 @@ contract CrowdFund {
         delete campaigns[_id];
         emit Cancel(_id);
     }
+    
+    function approves(uint _amount) external {
+        token.approve(address(this), _amount);
+    }
+
+    
 
     function pledge(uint _id, uint _amount) external {
         console.log(address(this));
         Campaign storage campaign = campaigns[_id];
         require(block.timestamp >= campaign.startAt, "not started");
         require(block.timestamp <= campaign.endAt, "ended");
-
+       
+        
         campaign.pledged += _amount;
         pledgedAmount[_id][msg.sender] += _amount;
         token.transferFrom(msg.sender, address(this), _amount);
@@ -141,6 +156,7 @@ contract CrowdFund {
     function testfund() external {
         // token.balanceOf(msg.sender);
         // token.transfer(0xCDc352625b82caEeE8b76e9c2c430119D139A330, 1020000000000000000);
+        
         token.transferFrom(msg.sender, 0xCDc352625b82caEeE8b76e9c2c430119D139A330,1010000000000000000 );
 
         

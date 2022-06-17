@@ -125,9 +125,9 @@ export default function blogPostWithImage({ test, users }) {
     //     resultArr.push(obj)
     //   })
     // console.log(resultArr);
-    console.log(email);
-    console.log(email[0]);
-    console.log(email[0].Email);
+    // console.log(email);
+    // console.log(email[0]);
+    // console.log(email[0].Email);
 
     const handleLogout = async () => {
       await logout({})
@@ -474,6 +474,7 @@ export default function blogPostWithImage({ test, users }) {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={'center'}>
+          <Link href={'/'}>
             <Box>
             <Heading fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}>
               <Text color={'blue.400'} as={'span'}>
@@ -481,6 +482,7 @@ export default function blogPostWithImage({ test, users }) {
               </Text>
           </Heading>
             </Box>
+            </Link>
             <HStack
               as={'nav'}
               spacing={4}

@@ -45,8 +45,19 @@ import {
     VisuallyHidden,
     List,
     ListItem,
+    FormControl,
+    FormLabel,
+    Input,
+    FormHelperText,
+    FormErrorMessage,
     useDisclosure
   } from '@chakra-ui/react';
+  
+
+
+
+
+
   import { FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
   import { MdLocalShipping } from 'react-icons/md';
   import {
@@ -57,7 +68,7 @@ import {
   } from '@chakra-ui/icons';
   
   import Head from "next/head"
-  import { useMoralis } from "react-moralis"
+  import { useMoralis , useWeb3ExecuteFunction } from "react-moralis"
   import Header from "../components/Header"
   import Socard from "../components/Socard"
   import Moralis from 'moralis'
@@ -66,22 +77,30 @@ import {
   import Footer from "../components/Footer";
   export default function Users(test, users) {
 
-    // const {isAuthenticated, authenticate, user, logout, isLoggingOut, Moralis} = useMoralis()
+  const {isAuthenticated, authenticate, user, logout, isLoggingOut, Moralis} = useMoralis()
+  const contractProcessor = useWeb3ExecuteFunction();
     // const { isOpen, onOpen, onClose } = useDisclosure();
     // var resultArr = []
  
   var [second, setSecond] = useState([]);
   const router = useRouter()
+  let [fund, setFund] = React.useState({
+    idCount: 0,
+    Fund: null,
+    
+  });
   React.useEffect(() => {
         
     (async () => {
         let results
-        let tmp = router.query.email
+        let tmp = router.query.id
+        let convertStr = parseInt(tmp);
         console.log(router.query, "router.query")
+        console.log(typeof convertStr)
        
         try {
             let query = new Moralis.Query("Campaign")
-            let tmp2 = query.equalTo("objectId",tmp);
+            let tmp2 = query.equalTo("idCount",convertStr);
             // results = await query.find();
             results = await tmp2.find();
             
@@ -100,6 +119,10 @@ import {
             // console.log(pa)
            
             setSecond(pa);
+            setFund({
+              ...fund,
+              idCount: convertStr,
+          })
 
             
             
@@ -107,9 +130,129 @@ import {
         })();
     }, []);
 
-    console.log(second.Email)
+    console.log(fund)
+
+
+    async function fundCampaign(fund) {
+
+      let busdInWei = Moralis.Units.Token(fund.Fund, "18")
+      let convert = parseInt(busdInWei)
+      let big = BigInt(convert)
+      console.log(typeof big);
+      let options = {
+        contractAddress: "0xC8F3CEef7D11E1FDF990465C8cA46Dea3F8bb4C4",
+        functionName: "pledge",
+        abi: [
+          {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"pledge","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ],
+        params: {
+          _id: fund.idCount,
+          _amount: busdInWei
+        
+        },
+        
+      }
+
+
+      
+      await Moralis.enableWeb3(); 
+      await contractProcessor.fetch({
+        params: options,
+  
+        onSuccess: (data) => {
+          console.log(data);
+          console.log("mint done");
+        },
+        onComplete: () => {
+          console.log("done");
+        },
+        onError: (err) => {
+          console.log(err);
+        },
+      });
+    };
+
+
+    async function approve(fund) {
+
+      let busdInWei = Moralis.Units.Token(fund.Fund, "18")
+      let convert = parseInt(busdInWei)
+      let big = BigInt(convert)
+      
+      let options = {
+        contractAddress: "0x932f64E912169643646F8aCB7B39e8f6903D7b89",
+        functionName: "approve",
+        abi: [
+          {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "_spender",
+                    "type": "address"
+                },
+                {
+                    "name": "_value",
+                    "type": "uint256"
+                }
+            ],
+            "name": "approve",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+        ],
+        params: {
+          _spender: "0xC8F3CEef7D11E1FDF990465C8cA46Dea3F8bb4C4",
+          _value: busdInWei
+        
+        },
+        
+      }
+
+
+      
+      await Moralis.enableWeb3(); 
+      await contractProcessor.fetch({
+        params: options,
+  
+        // onSuccess: (data) => {
+        //   console.log(data);
+        //   console.log("mint done");
+        // },
+        // onComplete: () => {
+        //   console.log("done");
+        // },
+        // onError: (err) => {
+        //   console.log(err);
+        // },
+        onSuccess: (tx) =>
+        tx.wait().then((finalTx) => {
+          console.log(finalTx)
+          fundCampaign(fund);
+        }),
+
+
+      });
+    };
+
+    function handleChange(event) {
+      const value = event.target.value;
+      setFund({
+          ...fund,
+          [event.target.name]: +event.target.value,
+      })
+      ;
+      }
     
     return (
+
+
         <>
         <Headd>
 
@@ -192,6 +335,11 @@ import {
                   </List>
                 </SimpleGrid>
               </Box>
+              <Box>
+              <FormLabel htmlFor='Fund'>Fund</FormLabel>
+              <Input size='lg' name='Fund' type='int' value={fund.Fund}
+              onChange={handleChange}/>
+              </Box>
               {/* <Box> */}
                 {/* <Text
                   fontSize={{ base: '16px', lg: '18px' }}
@@ -262,7 +410,9 @@ import {
               _hover={{
                 transform: 'translateY(2px)',
                 boxShadow: 'lg',
-              }}>
+              }}
+              type='submit'
+              onClick={() => approve(fund)}>
               Fund Campaign
             </Button>
   

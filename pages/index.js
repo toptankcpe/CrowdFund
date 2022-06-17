@@ -59,7 +59,7 @@ const NavLink = () => (
 
 
 import Head from "next/head"
-import { useMoralis } from "react-moralis"
+import { useMoralis , useWeb3ExecuteFunction } from "react-moralis"
 import Header from "../components/Header"
 
 
@@ -68,7 +68,7 @@ import Header from "../components/Header"
 export default function Home() {
   
   const {isAuthenticated, authenticate, user, account,logout, isLoggingOut} = useMoralis()
-  
+  const contractProcessor = useWeb3ExecuteFunction();
   
   const { isOpen, onOpen, onClose } = useDisclosure();
   
