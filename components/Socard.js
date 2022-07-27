@@ -1,4 +1,4 @@
-import Image from 'next/image';
+// import Image from 'next/image';
 import {
   Box,
   Center,
@@ -7,7 +7,9 @@ import {
   Stack,
   Avatar,
   useColorModeValue,
+  Image
 } from '@chakra-ui/react';
+import ProgressBar from "@ramonak/react-progress-bar";
 import React, { Component } from "react";
 import Slider from "react-slick";
 import { useRouter } from 'next/router'
@@ -26,6 +28,7 @@ export default function Socard({ data }) {
       }
     })
   }
+  console.log(data.Photo && data.Photo.url)
 
   
 
@@ -39,12 +42,12 @@ export default function Socard({ data }) {
       // </div>
       
       
-      <Center py={6}>
+      <Center py={6} >
       <Box
-        maxW={'445px'}
-        w={'full'}
-        maxH={'445px'}
-        h={'full'}
+        w={'400px'}
+        // w={'full'}
+        h={'550px'}
+        // h={'full'}
         bg={useColorModeValue('white', 'gray.900')}
         boxShadow={'2xl'}
         rounded={'md'}
@@ -52,28 +55,36 @@ export default function Socard({ data }) {
         overflow={'hidden'}
         onClick={()=>handleClick(data.idCount)}>
         <Box
-          h={'210px'}
+         
           bg={'gray.100'}
+          overflow={'auto'}
+          h={'300px'}
           mt={-6}
           mx={-6}
           mb={6}
-          pos={'relative'}>
-          {/* <Image
-            src={
-              'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
-            }
-            layout={'fill'}
-          /> */}
+          // pos={'relative'}
+          >
+          <Image
+          //  boxSize='300px'
+           h='100%'
+           w='100%'
+          //  objectFit='cover'
+       
+          src={data.Photo && data.Photo.url}
+            
+          
+          />
         </Box>
         <Stack>
-          <Text
+          
+          {/* <Text
             color={'green.500'}
             textTransform={'uppercase'}
             fontWeight={800}
             fontSize={'sm'}
             letterSpacing={1.1}>
             {data.Email}
-          </Text>
+          </Text> */}
           <Heading
             color={useColorModeValue('gray.700', 'white')}
             fontSize={'2xl'}
@@ -81,10 +92,22 @@ export default function Socard({ data }) {
             {data.CampaignName}
           </Heading>
           <Text color={'gray.500'}>
-            {data.Tagline}
+            {data.Tagline && data.Tagline.substring(0, 85)} . . .
           </Text>
         </Stack>
-        <Stack mt={6} direction={'row'} spacing={4} align={'center'}>
+
+     
+
+
+        <Stack mt={6} align={'end'}>
+        <Text ontWeight={600}>
+        {data.Funded} TST / {data.goal} TST
+          </Text>
+        
+        </Stack>
+        <ProgressBar completed={data.Funded/data.goal*100} maxCompleted={100}/>
+        
+        <Stack mt={2} direction={'row'} spacing={4} align={'center'}>
           {/* <Avatar
             src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
             alt={'Author'}
@@ -94,6 +117,11 @@ export default function Socard({ data }) {
             <Text color={'gray.500'}>Feb 08, 2021 · 6min read</Text>
           </Stack>
         </Stack>
+
+        
+      
+       
+        
       </Box>
     </Center>
     

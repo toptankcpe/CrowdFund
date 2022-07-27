@@ -22,7 +22,7 @@ export default function NavItem({ icon, title, description, active, navSize, onC
                 <Link
                     backgroundColor={active && "#AEC8CA"}
                     p={3}
-                    borderRadius={8}
+                    // borderRadius={8}
                     _hover={{ textDecor: 'none', backgroundColor: "#AEC8CA" }}
                     w={navSize == "large" && "100%"}
                     onClick={onClick}
@@ -34,7 +34,7 @@ export default function NavItem({ icon, title, description, active, navSize, onC
                         </Flex>
                     </MenuButton>
                 </Link>
-                <MenuList
+                {/* <MenuList
                     py={0}
                     border="none"
                     w={200}
@@ -42,7 +42,7 @@ export default function NavItem({ icon, title, description, active, navSize, onC
                     ml={5}
                 >
                     <NavHoverBox title={title} icon={icon} description={description} />
-                </MenuList>
+                </MenuList> */}
             </Menu>
         </Flex>
     )

@@ -35,7 +35,7 @@ import { useRouter } from 'next/router'
 export default function Footer(){
     return(
     <Box
-        bg={useColorModeValue('gray.50', 'gray.900')}
+        bg={useColorModeValue('gray.800', 'gray.900')}
         color={useColorModeValue('gray.700', 'gray.200')}>
         <Container as={Stack} maxW={'6xl'} py={10}>
             <SimpleGrid
@@ -43,43 +43,43 @@ export default function Footer(){
             spacing={8}>
             <Stack spacing={6}>
                 <Box>
-                <Text color={useColorModeValue('gray.700', 'white')}>Topstarter</Text>
+                <Text color={useColorModeValue('gray.100', 'white')}>Topstarter</Text>
                 </Box>
-                <Text fontSize={'sm'}>
+                <Text fontSize={'sm'} color={useColorModeValue('gray.100', 'white')}>
                 © 2022 Chakra Templates. All rights reserved
                 </Text>
             </Stack>
             <Stack align={'flex-start'}>
-                <Text>Product</Text>
-                <Link href={'#'}>Overview</Link>
-                <Link href={'#'}>Features</Link>
-                <Link href={'#'}>Tutorials</Link>
-                <Link href={'#'}>Pricing</Link>
-                <Link href={'#'}>Releases</Link>
+                <Text color={useColorModeValue('gray.100', 'white')}>Product </Text>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')} >Overview</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')} >Features</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')} >Tutorials</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')} >Pricing</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')} >Releases</Link>
             </Stack>
             <Stack align={'flex-start'}>
-                <Text>Company</Text>
-                <Link href={'#'}>About</Link>
-                <Link href={'#'}>Press</Link>
-                <Link href={'#'}>Careers</Link>
-                <Link href={'#'}>Contact</Link>
-                <Link href={'#'}>Partners</Link>
+                <Text color={useColorModeValue('gray.100', 'white')}>Company</Text>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>About</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Press</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Careers</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Contact</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Partners</Link>
             </Stack>
             <Stack align={'flex-start'}>
-                <Text>Support</Text>
-                <Link href={'#'}>Help Center</Link>
-                <Link href={'#'}>Terms of Service</Link>
-                <Link href={'#'}>Legal</Link>
-                <Link href={'#'}>Privacy Policy</Link>
-                <Link href={'#'}>Status</Link>
+                <Text color={useColorModeValue('gray.100', 'white')} >Support </Text>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Help Center</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Terms of Service</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Legal</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Privacy Policy</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Status</Link>
             </Stack>
             <Stack align={'flex-start'}>
-                <Text>Follow Us</Text>
-                <Link href={'#'}>Facebook</Link>
-                <Link href={'#'}>Twitter</Link>
-                <Link href={'#'}>Dribbble</Link>
-                <Link href={'#'}>Instagram</Link>
-                <Link href={'#'}>LinkedIn</Link>
+                <Text color={useColorModeValue('gray.100', 'white')} >Follow Us </Text>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Facebook</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Twitter</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Dribbble</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>Instagram</Link>
+                <Link href={'#'} color={useColorModeValue('gray.100', 'white')}>LinkedIn</Link>
             </Stack>
             </SimpleGrid>
         </Container>

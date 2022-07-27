@@ -22,19 +22,53 @@ contract CrowdFund {
         uint32 startAt,
         uint32 endAt
     );
+
+
+    event Requestfund(
+        uint id,
+        uint requestcount,
+        address indexed creator,
+        uint amount,
+        uint32 startAt,
+        uint32 endAt
+    );
     event Cancel(uint id);
     event Pledge(uint indexed id, address indexed caller, uint amount);
     event Unpledge(uint indexed id, address indexed caller, uint amount);
-    event Claim(uint id);
+    event Claim(uint id,uint requestcount);
     event Refund(uint id, address indexed caller, uint amount);
+    event Voting(uint id, uint requestcount,address indexed caller, bool check);
 
     struct Campaign {
         
         address creator;
         
         uint goal;
+
+        uint claimleft;
+
+        uint totalfund;
         
         uint pledged;
+        
+        uint32 startAt;
+       
+        uint32 endAt;
+        
+        bool claimed;
+    }
+
+    struct Request {
+        
+        address creator;
+
+        uint votecount;
+
+        uint votetrue;
+        
+        uint votefalse;
+        
+        uint amount;
         
         uint32 startAt;
        
@@ -51,12 +85,13 @@ contract CrowdFund {
     uint public count;
     // Mapping from id to Campaign
     mapping(uint => Campaign) public campaigns;
+    mapping(uint => mapping(uint => Request)) public requests;
+
+    mapping(uint => mapping(uint => mapping(address => bool))) public votescheck;
+    mapping(uint => mapping(uint => mapping(address => bool))) public votes;
     // Mapping from campaign id => pledger => amount pledged
     mapping(uint => mapping(address => uint)) public pledgedAmount;
 
-    // constructor(address _token) {
-    //     token = IERC20(_token);
-    // }
 
     receive() external payable {}
 
@@ -71,7 +106,7 @@ contract CrowdFund {
         uint32 _id
 
     ) external {
-        require(_startAt >= block.timestamp, "start at < now");
+        // require(_startAt >= block.timestamp, "start at < now");
         require(_endAt >= _startAt, "end at < start at");
         require(_endAt <= block.timestamp + 90 days, "end at > max duration");
 
@@ -79,6 +114,8 @@ contract CrowdFund {
         campaigns[_id] = Campaign({
             creator: msg.sender,
             goal: _goal,
+            claimleft: 0,
+            totalfund: 0,
             pledged: 0,
             startAt: _startAt,
             endAt: _endAt,
@@ -86,6 +123,39 @@ contract CrowdFund {
         });
 
         emit Launch(_id, msg.sender, _goal, _startAt, _endAt);
+    }
+
+    function requestfund(
+        uint _amount,
+        uint32 _startAt,
+        uint32 _endAt,
+        uint32 _id,
+        uint32 _requestcount
+
+
+    ) external {
+        Campaign storage campaign = campaigns[_id];
+        
+        // require(_startAt >= block.timestamp, "start at < now");
+        require(_endAt >= _startAt, "end at < start at");
+       
+        
+        require(campaign.claimleft >= _amount, "amount > claimleft");
+
+        // count += 1;
+        requests[_id][_requestcount] = Request({
+            creator: msg.sender,
+            votecount: 0 ,
+            votetrue: 0,
+            votefalse: 0,
+            amount: _amount,
+            startAt: _startAt,
+            endAt: _endAt,
+            claimed: false
+        });
+
+    
+        emit Requestfund(_id, _requestcount, msg.sender, _amount, _startAt, _endAt);
     }
 
     function cancel(uint _id) external {
@@ -96,22 +166,47 @@ contract CrowdFund {
         delete campaigns[_id];
         emit Cancel(_id);
     }
-    
-    function approves(uint _amount) external {
-        token.approve(address(this), _amount);
-    }
 
+
+    function voting(uint _id, uint _requestcount, bool _check) external {
+        Request storage request = requests[_id][_requestcount];
+        require(votescheck[_id][_requestcount][msg.sender] == false, "already vote");
+        
+        votes[_id][_requestcount][msg.sender] = _check;
+        votescheck[_id][_requestcount][msg.sender] = true;
+
+        if(_check == false){
+            request.votecount +=1;
+            request.votefalse +=1;
+        }else{
+            if(_check == true){
+                request.votecount +=1;
+                request.votetrue +=1;
+            }
+        }
+
+        emit Voting(_id, _requestcount, msg.sender,_check);
+    }
     
 
     function pledge(uint _id, uint _amount) external {
-        console.log(address(this));
+        
         Campaign storage campaign = campaigns[_id];
         require(block.timestamp >= campaign.startAt, "not started");
         require(block.timestamp <= campaign.endAt, "ended");
        
         
         campaign.pledged += _amount;
-        pledgedAmount[_id][msg.sender] += _amount;
+        campaign.claimleft += _amount;
+        
+        
+        if(pledgedAmount[_id][msg.sender] == 0){
+            campaign.totalfund += 1;
+            pledgedAmount[_id][msg.sender] += _amount;
+        }else{
+            pledgedAmount[_id][msg.sender] += _amount;
+        }
+       
         token.transferFrom(msg.sender, address(this), _amount);
 
         emit Pledge(_id, msg.sender, _amount);
@@ -128,17 +223,23 @@ contract CrowdFund {
         emit Unpledge(_id, msg.sender, _amount);
     }
 
-    function claim(uint _id) external {
+    function claim(uint _id ,uint _requestcount) external {
         Campaign storage campaign = campaigns[_id];
-        require(campaign.creator == msg.sender, "not creator");
-        require(block.timestamp > campaign.endAt, "not ended");
-        require(campaign.pledged >= campaign.goal, "pledged < goal");
-        require(!campaign.claimed, "claimed");
+        Request storage request = requests[_id][_requestcount];
+        require(request.creator == msg.sender, "not creator"); 
+        require(block.timestamp >= request.endAt || campaign.totalfund == request.votecount, "not expire or vote not complete");
+        require(!request.claimed, "claimed");
 
-        campaign.claimed = true;
-        token.transfer(campaign.creator, campaign.pledged);
+        if(request.votetrue > request.votefalse){
+            request.claimed = true;
+            campaign.claimleft -= request.amount;
+            token.transfer(request.creator, request.amount);
+        }else{
+            revert("request not approve");
+        }
+        
 
-        emit Claim(_id);
+        emit Claim(_id,_requestcount);
     }
 
     function refund(uint _id) external {
@@ -153,14 +254,6 @@ contract CrowdFund {
         emit Refund(_id, msg.sender, bal);
     }
    
-    function testfund() external {
-        // token.balanceOf(msg.sender);
-        // token.transfer(0xCDc352625b82caEeE8b76e9c2c430119D139A330, 1020000000000000000);
-        
-        token.transferFrom(msg.sender, 0xCDc352625b82caEeE8b76e9c2c430119D139A330,1010000000000000000 );
-
-        
-    }
-
+  
     
 }
