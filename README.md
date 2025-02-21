@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # CrowdFund
 KBTG-MIniProject-Decentralize-CrowdFunding
 =======
@@ -17,4 +16,4 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
->>>>>>> first commit
+
